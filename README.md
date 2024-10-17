@@ -14,11 +14,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## DB
 
-Using Prisma ORM with connect to [cockroachlabs.cloud]
+Using Prisma ORM with connect to [cockroachlabs.cloud](https://cockroachlabs.cloud)
 
 ## File Uploading
 
-For this is using [uploadthing.com]
+For this is using [uploadthing.com](https://uploadthing.com)
 
 ## Styling
 
