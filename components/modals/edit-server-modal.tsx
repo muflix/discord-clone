@@ -1,5 +1,3 @@
-'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { useForm } from 'react-hook-form'
@@ -57,7 +55,7 @@ export const EditSeverModal = () => {
 			form.setValue('name', server.name)
 			form.setValue('imageUrl', server.imageUrl)
 		}
-	}, [server, form])
+	}, [server, form, isModalOpen])
 
 	const isLoading = form.formState.isSubmitting
 
@@ -69,12 +67,12 @@ export const EditSeverModal = () => {
 			router.refresh()
 			onClose()
 		} catch (error) {
-			console.log(error)
+			console.error('Error during submission:', error)
 		}
 	}
 
 	const handleClose = () => {
-		form.reset()
+		form.reset() // Скидаємо форму
 		onClose()
 	}
 
@@ -103,7 +101,9 @@ export const EditSeverModal = () => {
 												<FileUpload
 													endpoint='serverImage'
 													value={field.value}
-													onChange={field.onChange}
+													onChange={file => {
+														field.onChange(file)
+													}}
 												/>
 											</FormControl>
 										</FormItem>
