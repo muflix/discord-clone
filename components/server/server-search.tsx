@@ -1,5 +1,13 @@
 'use client'
 
+import {
+	CommandDialog,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
 import { Search } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -18,12 +26,31 @@ interface ServerSearchProps {
 	}[]
 }
 
+// Add casting userAgentData
+interface NavigatorOsData {
+	platform: string
+}
+
 export const ServerSearch = ({ data }: ServerSearchProps) => {
 	const [open, setOpen] = useState(false)
+	const [isMac, setIsMac] = useState(false)
 	const router = useRouter()
 	const params = useParams()
 
 	useEffect(() => {
+		// Check `navigator.userAgentData`
+		const navigatorOs = navigator as Navigator & {
+			userAgentData?: NavigatorOsData
+		}
+
+		if (navigatorOs.userAgentData) {
+			// Check `userAgentData` for macOS
+			setIsMac(navigatorOs.userAgentData.platform === 'macOS')
+		} else {
+			// If `userAgentData` doesn`t supported, use `navigator.userAgent`
+			setIsMac(navigator.userAgent.includes('Mac'))
+		}
+
 		const down = (e: KeyboardEvent) => {
 			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault()
@@ -64,9 +91,36 @@ export const ServerSearch = ({ data }: ServerSearchProps) => {
 					Search
 				</p>
 				<kbd className='pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground ml-auto'>
-					<span className='text-xs'>⌘</span>K
+					{isMac ? (
+						<>
+							<span className='text-xs'>⌘</span>+ K
+						</>
+					) : (
+						<>
+							<span className='text-xs'>CTRL</span>+ K
+						</>
+					)}
 				</kbd>
 			</button>
+			<CommandDialog open={open} onOpenChange={setOpen}>
+				<CommandInput placeholder='Search all channels and members' />
+				<CommandList>
+					<CommandEmpty>No Results found</CommandEmpty>
+					{data.map(({ label, type, data }) => {
+						if (!data?.length) return null
+						return (
+							<CommandGroup key={label} heading={label}>
+								{data.map(({ id, name, icon }) => (
+									<CommandItem key={id} onSelect={() => onClick({ id, type })}>
+										{icon}
+										<span>{name}</span>
+									</CommandItem>
+								))}
+							</CommandGroup>
+						)
+					})}
+				</CommandList>
+			</CommandDialog>
 		</>
 	)
 }
